@@ -6,16 +6,9 @@ import { salaryData, specializations } from '@/data/specializations';
 import { Link } from 'react-router-dom';
 
 const Salaries = () => {
-  const sortedByMinSalary = [...specializations].sort((a, b) => {
-    const aMin = parseInt(a.salary.replace(/[^\d]/g, ''));
-    const bMin = parseInt(b.salary.replace(/[^\d]/g, ''));
-    return bMin - aMin;
-  });
-
-  const topPaying = sortedByMinSalary.slice(0, 5);
-  const entryLevel = [...specializations].filter(s => 
-    parseInt(s.salary.replace(/[^\d]/g, '')) < 70000
-  );
+  const sortedByMaxSalary = [...specializations].sort((a, b) => b.salaryMax - a.salaryMax);
+  const topPaying = sortedByMaxSalary.slice(0, 5);
+  const entryLevel = [...specializations].filter(s => s.salaryMin < 70000).sort((a, b) => a.salaryMin - b.salaryMin);
 
   return (
     <div className="min-h-screen bg-background">
@@ -92,14 +85,23 @@ const Salaries = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 {topPaying.map((spec, idx) => (
-                  <div key={idx} className="flex items-center justify-between p-3 bg-accent/5 rounded-lg border border-accent/10">
+                  <div key={spec.id} className="flex items-center justify-between p-3 bg-accent/5 rounded-lg border border-accent/10">
                     <div className="flex items-center gap-3">
                       <div className="flex items-center justify-center w-8 h-8 rounded-full bg-accent/20 text-accent font-bold">
                         {idx + 1}
                       </div>
                       <div>
                         <p className="font-medium text-sm">{spec.title}</p>
-                        <p className="text-xs text-muted-foreground">{spec.category}</p>
+                        <div className="flex gap-2 mt-0.5">
+                          <Badge variant="outline" className="text-xs">
+                            {spec.difficulty === 'низкая' && '🟢'}
+                            {spec.difficulty === 'средняя' && '🟡'}
+                            {spec.difficulty === 'высокая' && '🔴'}
+                          </Badge>
+                          <Badge variant={spec.demand === 'высокий' ? 'default' : 'secondary'} className="text-xs">
+                            {spec.demand === 'высокий' ? '⭐' : ''}
+                          </Badge>
+                        </div>
                       </div>
                     </div>
                     <Badge className="bg-accent/20 text-accent hover:bg-accent/30">
@@ -121,11 +123,14 @@ const Salaries = () => {
                 <CardDescription>Специализации с доступным входом</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
-                {entryLevel.map((spec, idx) => (
-                  <div key={idx} className="flex items-center justify-between p-3 hover:bg-muted/50 rounded-lg transition-colors">
+                {entryLevel.map((spec) => (
+                  <div key={spec.id} className="flex items-center justify-between p-3 hover:bg-muted/50 rounded-lg transition-colors">
                     <div className="flex items-center gap-3">
                       <Icon name={spec.icon as any} size={20} className="text-primary" />
-                      <p className="font-medium text-sm">{spec.title}</p>
+                      <div>
+                        <p className="font-medium text-sm">{spec.title}</p>
+                        <p className="text-xs text-muted-foreground">{spec.education.split('+')[0].trim()}</p>
+                      </div>
                     </div>
                     <Badge variant="outline">{spec.salary}</Badge>
                   </div>

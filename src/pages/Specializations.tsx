@@ -74,16 +74,26 @@ const Specializations = () => {
           </Tabs>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredSpecs.map((spec, idx) => (
-              <Card key={idx} className="hover:shadow-xl transition-all hover:-translate-y-2 duration-300 group">
+            {filteredSpecs.map((spec) => (
+              <Card key={spec.id} className="hover:shadow-xl transition-all hover:-translate-y-2 duration-300 group">
                 <CardHeader>
                   <div className="flex items-start justify-between mb-3">
                     <div className="p-3 bg-primary/10 rounded-lg group-hover:bg-primary/20 transition-colors">
                       <Icon name={spec.icon as any} size={28} className="text-primary" />
                     </div>
-                    <Badge variant="secondary" className="text-sm">
-                      {spec.salary}
-                    </Badge>
+                    <div className="flex flex-col gap-1 items-end">
+                      <Badge variant="secondary" className="text-xs">{spec.salary}</Badge>
+                      <Badge variant="outline" className="text-xs">
+                        {spec.difficulty === 'низкая' && '🟢 Легко'}
+                        {spec.difficulty === 'средняя' && '🟡 Средне'}
+                        {spec.difficulty === 'высокая' && '🔴 Сложно'}
+                      </Badge>
+                      <Badge variant={spec.demand === 'высокий' ? 'default' : 'secondary'} className="text-xs">
+                        {spec.demand === 'высокий' && '⭐ Востребовано'}
+                        {spec.demand === 'средний' && 'Средний спрос'}
+                        {spec.demand === 'низкий' && 'Низкий спрос'}
+                      </Badge>
+                    </div>
                   </div>
                   <CardTitle className="text-xl mb-2">{spec.title}</CardTitle>
                   <CardDescription className="text-base">{spec.description}</CardDescription>
@@ -103,12 +113,56 @@ const Specializations = () => {
                         Ключевые навыки:
                       </p>
                       <div className="flex flex-wrap gap-2">
-                        {spec.skills.map((skill, i) => (
+                        {spec.skills.slice(0, 3).map((skill, i) => (
                           <Badge key={i} variant="outline" className="text-xs">
                             {skill}
                           </Badge>
                         ))}
+                        {spec.skills.length > 3 && (
+                          <Badge variant="outline" className="text-xs">
+                            +{spec.skills.length - 3}
+                          </Badge>
+                        )}
                       </div>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium mb-2 text-muted-foreground flex items-center gap-2">
+                        <Icon name="GraduationCap" size={16} />
+                        Образование:
+                      </p>
+                      <p className="text-sm">{spec.education}</p>
+                    </div>
+                    <div className="pt-3 border-t">
+                      <details className="cursor-pointer group/details">
+                        <summary className="text-sm font-medium text-primary hover:underline list-none flex items-center gap-1">
+                          <Icon name="ChevronRight" size={16} className="group-open/details:rotate-90 transition-transform" />
+                          Плюсы и минусы
+                        </summary>
+                        <div className="mt-3 space-y-3 pl-5">
+                          <div>
+                            <p className="text-xs font-semibold text-green-600 mb-1.5">Плюсы:</p>
+                            <ul className="text-xs space-y-1">
+                              {spec.pros.map((pro, idx) => (
+                                <li key={idx} className="flex items-start gap-1">
+                                  <span className="text-green-600 mt-0.5">✓</span>
+                                  <span>{pro}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                          <div>
+                            <p className="text-xs font-semibold text-red-600 mb-1.5">Минусы:</p>
+                            <ul className="text-xs space-y-1">
+                              {spec.cons.map((con, idx) => (
+                                <li key={idx} className="flex items-start gap-1">
+                                  <span className="text-red-600 mt-0.5">✗</span>
+                                  <span>{con}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        </div>
+                      </details>
                     </div>
                   </div>
                 </CardContent>
