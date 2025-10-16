@@ -9,6 +9,8 @@ const Index = () => {
   const [activeSection, setActiveSection] = useState('home');
   const [quizStep, setQuizStep] = useState(0);
   const [quizAnswers, setQuizAnswers] = useState<number[]>([]);
+  const [showResult, setShowResult] = useState(false);
+  const [recommendedSpec, setRecommendedSpec] = useState<number | null>(null);
 
   const specializations = [
     {
@@ -115,6 +117,51 @@ const Index = () => {
         { text: 'В компании любого размера', spec: [4] },
       ],
     },
+    {
+      question: 'Как вы относитесь к рутинным задачам?',
+      options: [
+        { text: 'Люблю систематическую работу', spec: [0, 4] },
+        { text: 'Предпочитаю разнообразие', spec: [1, 3] },
+        { text: 'Ищу баланс между рутиной и новизной', spec: [2] },
+        { text: 'Хочу решать стратегические задачи', spec: [5] },
+      ],
+    },
+    {
+      question: 'Какой уровень ответственности вам комфортен?',
+      options: [
+        { text: 'Отвечаю за свою работу', spec: [0, 4] },
+        { text: 'Готов к высокой ответственности', spec: [3, 5] },
+        { text: 'Консультирую, но не принимаю финальные решения', spec: [1] },
+        { text: 'Готов отвечать за результаты компании', spec: [2, 5] },
+      ],
+    },
+    {
+      question: 'Что для вас важнее в работе?',
+      options: [
+        { text: 'Стабильность и предсказуемость', spec: [0, 4] },
+        { text: 'Возможность развития и роста', spec: [2, 5] },
+        { text: 'Общение с людьми', spec: [1, 4] },
+        { text: 'Престиж и признание', spec: [3, 5] },
+      ],
+    },
+    {
+      question: 'Как вы предпочитаете работать?',
+      options: [
+        { text: 'Самостоятельно, сосредоточенно', spec: [0, 2] },
+        { text: 'В команде, с обменом идеями', spec: [1, 4] },
+        { text: 'Руковожу процессом', spec: [5] },
+        { text: 'Совмещаю индивидуальную и командную работу', spec: [3] },
+      ],
+    },
+    {
+      question: 'Какое образование у вас есть или планируется?',
+      options: [
+        { text: 'Среднее профессиональное', spec: [4, 0] },
+        { text: 'Высшее (бакалавриат)', spec: [0, 2, 4] },
+        { text: 'Магистратура или планирую', spec: [1, 2, 5] },
+        { text: 'Есть/планирую сертификацию', spec: [1, 3, 5] },
+      ],
+    },
   ];
 
   const handleQuizAnswer = (specs: number[]) => {
@@ -127,10 +174,16 @@ const Index = () => {
         return acc;
       }, {} as Record<number, number>);
       const topSpec = Object.entries(counts).sort((a, b) => b[1] - a[1])[0][0];
-      alert(`Вам подходит: ${specializations[Number(topSpec)].title}`);
-      setQuizStep(0);
-      setQuizAnswers([]);
+      setRecommendedSpec(Number(topSpec));
+      setShowResult(true);
     }
+  };
+
+  const resetQuiz = () => {
+    setQuizStep(0);
+    setQuizAnswers([]);
+    setShowResult(false);
+    setRecommendedSpec(null);
   };
 
   const salaryData = [
@@ -300,33 +353,128 @@ const Index = () => {
         <div className="container mx-auto max-w-3xl">
           <h2 className="text-4xl font-bold mb-4 text-center text-foreground">Профориентационный тест</h2>
           <p className="text-center text-muted-foreground mb-12">
-            Ответьте на вопросы, чтобы узнать, какая специализация вам подходит
+            Ответьте на 8 вопросов, чтобы узнать, какая специализация вам подходит
           </p>
-          <Card>
-            <CardHeader>
-              <div className="flex justify-between items-center mb-2">
-                <CardTitle>Вопрос {quizStep + 1} из {quizQuestions.length}</CardTitle>
-                <Badge>{Math.round(((quizStep + 1) / quizQuestions.length) * 100)}%</Badge>
-              </div>
-              <Progress value={((quizStep + 1) / quizQuestions.length) * 100} className="mb-4" />
-              <CardDescription className="text-lg font-medium text-foreground">
-                {quizQuestions[quizStep].question}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {quizQuestions[quizStep].options.map((option, idx) => (
-                <Button
-                  key={idx}
-                  variant="outline"
-                  className="w-full justify-start text-left h-auto py-4 hover:bg-primary hover:text-primary-foreground transition-colors"
-                  onClick={() => handleQuizAnswer(option.spec)}
-                >
-                  <Icon name="Circle" size={16} className="mr-3 flex-shrink-0" />
-                  {option.text}
-                </Button>
-              ))}
-            </CardContent>
-          </Card>
+          
+          {!showResult ? (
+            <Card>
+              <CardHeader>
+                <div className="flex justify-between items-center mb-2">
+                  <CardTitle>Вопрос {quizStep + 1} из {quizQuestions.length}</CardTitle>
+                  <Badge>{Math.round(((quizStep + 1) / quizQuestions.length) * 100)}%</Badge>
+                </div>
+                <Progress value={((quizStep + 1) / quizQuestions.length) * 100} className="mb-4" />
+                <CardDescription className="text-lg font-medium text-foreground">
+                  {quizQuestions[quizStep].question}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {quizQuestions[quizStep].options.map((option, idx) => (
+                  <Button
+                    key={idx}
+                    variant="outline"
+                    className="w-full justify-start text-left h-auto py-4 hover:bg-primary hover:text-primary-foreground transition-colors"
+                    onClick={() => handleQuizAnswer(option.spec)}
+                  >
+                    <Icon name="Circle" size={16} className="mr-3 flex-shrink-0" />
+                    {option.text}
+                  </Button>
+                ))}
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-6 animate-fade-in">
+              <Card className="border-2 border-primary">
+                <CardHeader>
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="p-3 bg-primary/10 rounded-lg">
+                      <Icon name="CheckCircle2" size={32} className="text-primary" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-2xl">Ваш результат готов!</CardTitle>
+                      <CardDescription>На основе ваших ответов</CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {recommendedSpec !== null && (
+                    <>
+                      <div className="p-6 bg-primary/5 rounded-lg border border-primary/20">
+                        <div className="flex items-start justify-between mb-4">
+                          <div>
+                            <h3 className="text-2xl font-bold mb-2">{specializations[recommendedSpec].title}</h3>
+                            <Badge variant="secondary" className="text-base">
+                              {specializations[recommendedSpec].salary}
+                            </Badge>
+                          </div>
+                          <Icon name={specializations[recommendedSpec].icon as any} size={48} className="text-primary" />
+                        </div>
+                        <p className="text-muted-foreground mb-4">{specializations[recommendedSpec].description}</p>
+                        
+                        <div className="space-y-3 mt-4">
+                          <div>
+                            <p className="text-sm font-medium mb-1 text-muted-foreground">Где можно работать:</p>
+                            <p className="text-sm font-medium">{specializations[recommendedSpec].places}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium mb-2 text-muted-foreground">Необходимые навыки:</p>
+                            <div className="flex flex-wrap gap-2">
+                              {specializations[recommendedSpec].skills.map((skill, i) => (
+                                <Badge key={i} variant="outline">
+                                  {skill}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div>
+                        <h4 className="font-semibold mb-3 text-lg">Рекомендации по обучению:</h4>
+                        <div className="grid gap-3">
+                          {educationPaths.slice(1, 4).map((path, idx) => (
+                            <div key={idx} className="p-4 bg-card rounded-lg border flex justify-between items-center">
+                              <div>
+                                <p className="font-medium">{path.level}</p>
+                                <p className="text-sm text-muted-foreground">{path.duration} • {path.institutions}</p>
+                              </div>
+                              <Badge variant="outline">{path.starting}</Badge>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="p-4 bg-accent/10 rounded-lg border border-accent/20">
+                        <div className="flex gap-3">
+                          <Icon name="Lightbulb" size={24} className="text-accent flex-shrink-0" />
+                          <div>
+                            <p className="font-medium mb-1">Следующие шаги:</p>
+                            <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+                              <li>Изучите требования к специалистам в вакансиях</li>
+                              <li>Начните с курсов по основам бухгалтерского учета</li>
+                              <li>Получите практический опыт через стажировки</li>
+                              <li>Рассмотрите профессиональную сертификацию</li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  )}
+
+                  <div className="flex gap-3">
+                    <Button onClick={resetQuiz} variant="outline" className="flex-1">
+                      <Icon name="RotateCcw" size={18} className="mr-2" />
+                      Пройти снова
+                    </Button>
+                    <Button className="flex-1" onClick={() => setActiveSection('специализации')}>
+                      <Icon name="Search" size={18} className="mr-2" />
+                      Все специализации
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
         </div>
       </section>
 
