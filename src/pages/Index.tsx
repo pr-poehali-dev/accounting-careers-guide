@@ -201,7 +201,7 @@ const Index = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Icon name="Calculator" size={28} className="text-primary" />
-              <span className="text-xl font-bold text-foreground">Карьера в бухгалтерии</span>
+              <span className="text-xl font-bold text-foreground">Бухгалтерия</span>
             </div>
             <div className="hidden md:flex gap-6">
               {['Главная', 'Специализации', 'Зарплаты', 'Образование', 'Профориентация'].map((item) => (
